@@ -22,6 +22,9 @@ app.use(cookieParser())
 app.use('/api/user', authRoutes)
 app.use('/api/year', yearRoutes)
 app.use('/api/liveData', liveApiRoutes)
+app.use('/', (req, res) => {
+    res.send("ok")
+})
 
 const port = process.env.PORT || 8081
 //connect to db
