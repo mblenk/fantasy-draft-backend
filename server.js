@@ -23,7 +23,7 @@ app.use('/api/user', authRoutes)
 app.use('/api/year', yearRoutes)
 app.use('/api/liveData', liveApiRoutes)
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 8081
 //connect to db
 
 app.listen(port, () => {
