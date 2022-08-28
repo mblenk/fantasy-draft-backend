@@ -23,15 +23,17 @@ app.use('/api/user', authRoutes)
 app.use('/api/year', yearRoutes)
 app.use('/api/liveData', liveApiRoutes)
 
-
+const port = process.env.PORT || 5000
 //connect to db
+
+app.listen(port, () => {
+    console.log('Listening on selected port')
+})
+
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
-        app.listen(process.env.PORT, () => {
-            console.log('Listening on selected port')
             console.log('Connected to db')
         })
-    })
     .catch((error) => {
         console.log(error)
     })
