@@ -1,10 +1,10 @@
 require('dotenv').config()
 
 const express = require('express')
-// const mongoose = require('mongoose')
-// const authRoutes = require('./routes/authRoutes')
-// const yearRoutes = require('./routes/yearRoutes')
-// const liveApiRoutes = require('./routes/liveApiRoutes')
+const mongoose = require('mongoose')
+const authRoutes = require('./routes/authRoutes')
+const yearRoutes = require('./routes/yearRoutes')
+const liveApiRoutes = require('./routes/liveApiRoutes')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
 
@@ -19,25 +19,23 @@ app.use(cors({
 app.use(cookieParser())
 
 //routes
-// app.use('/api/user', authRoutes)
-// app.use('/api/year', yearRoutes)
-// app.use('/api/liveData', liveApiRoutes)
+app.use('/api/user', authRoutes)
+app.use('/api/year', yearRoutes)
+app.use('/api/liveData', liveApiRoutes)
 app.use('/', (req, res) => {
-    res.send(process.env.MONGO_URI)
+    res.send('ok')
 })
 
 const port = process.env.PORT || 8081
-//connect to db
 
-// mongoose.connect(process.env.MONGO_URI)
-    // .then(() => {
-        app.listen(port, () => {
-            console.log('Listening on selected port')
-            // console.log('Connected to db')
-        })
-    // })
-    // .catch((error) => {
-    //     console.log(error)
-    // })
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => {
+        console.log('Connected to db')
+    })
+    .catch((error) => {
+        console.log(error)
+    })
 
-
+app.listen(port, () => {
+    console.log('Listening on selected port')
+})
