@@ -29,15 +29,20 @@ app.use('/', (req, res) => {
 const port = process.env.PORT || 8081
 //connect to db
 
-// mongoose.connect(process.env.MONGO_URI)
-    // .then(() => {
+mongoose.connect(process.env.MONGO_URI, 
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }
+)
+    .then(() => {
         app.listen(port, () => {
             console.log('Listening on selected port')
             console.log('Connected to db')
         })
-    // })
-    // .catch((error) => {
-    //     console.log(error)
-    // })
+    })
+    .catch((error) => {
+        console.log(error)
+    })
 
 
