@@ -195,7 +195,7 @@ const formatNewWaiverDataAndMergeWithExistingData = (newWaivers, newTrades, elem
     return { combinedWaivers, combinedTrades }
 }
 
-const trackWaivers = async (combinedWaivers) => {
+const trackWaivers = async (combinedWaivers, number) => {
     const waiverTrackingUpdate = await Promise.all(
         combinedWaivers.map( async (waiver) => {
             if(waiver.result !== 'Successful' || !waiver.player_in_retained) {
@@ -207,9 +207,9 @@ const trackWaivers = async (combinedWaivers) => {
                 const { data:playerOutScores } = await axios(`https://draft.premierleague.com/api/element-summary/${waiver.player_out_id}`)
                 
     
-                const latestGameweek = playerInScores.history.length
-                const playerInValidScores = playerInScores.history.filter(week => week.event >= waiver.gameweek)
-                const playerOutValidScores = playerOutScores.history.filter(week => week.event >= waiver.gameweek)
+                const latestGameweek = number ? number : playerInScores.history.length
+                const playerInValidScores = playerInScores.history.filter(week => week.event >= waiver.gameweek && week.event <= latestGameweek)
+                const playerOutValidScores = playerOutScores.history.filter(week => week.event >= waiver.gameweek && week.event <= latestGameweek)
 
                 const { data:team } = await axios(`https://draft.premierleague.com/api/entry/${waiver.manager_id}/event/${latestGameweek}`)
 

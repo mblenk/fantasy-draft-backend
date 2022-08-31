@@ -26,16 +26,17 @@ app.use('/', (req, res) => {
     res.send("ok")
 })
 
-const port = process.env.PORT || 8081
+const port = process.env.PORT 
 //connect to db
 
-app.listen(port, () => {
-    console.log('Listening on selected port')
-})
+
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
-            console.log('Connected to db')
+            app.listen(port, () => {
+                console.log('Listening on selected port')
+                console.log('Connected to db')
+            })
         })
     .catch((error) => {
         console.log(error)
