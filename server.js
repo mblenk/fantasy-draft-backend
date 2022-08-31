@@ -23,7 +23,7 @@ app.use(cookieParser())
 // app.use('/api/year', yearRoutes)
 // app.use('/api/liveData', liveApiRoutes)
 app.use('/', (req, res) => {
-    res.send('test ok')
+    res.send(process.env.MONGO_URI)
 })
 
 const port = process.env.PORT || 8081
