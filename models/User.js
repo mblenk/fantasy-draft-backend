@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
     display_name: {
@@ -27,8 +27,8 @@ const userSchema = new mongoose.Schema({
 
 
 userSchema.pre('save', async function(next) {
-    const salt = await bcrypt.genSalt();
-    this.password = await bcrypt.hash(this.password, salt);
+    // const salt = await bcrypt.genSalt();
+    // this.password = await bcrypt.hash(this.password, salt);
     next();
 });
   
@@ -42,8 +42,8 @@ userSchema.statics.login = async function(username, password) {
             visits: newVisits,
             lastVisit
         })
-        const auth = await bcrypt.compare(password, user.password);
-        if (auth) {
+        // const auth = await bcrypt.compare(password, user.password);
+        if (password === user.password) {
         return user;
         }
         throw Error('Incorrect password');
