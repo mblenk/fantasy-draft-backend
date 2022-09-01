@@ -225,13 +225,36 @@ const trackWaivers = async (combinedWaivers, latestGameweek) => {
                     const delta = playerInSum - playerOutSum
                     waiver.player_in_score = playerInSum
                     waiver.player_out_score = playerOutSum
-                    waiver.profit = waiver.player_out_status ? "N/A" : delta
+                    waiver.profit = waiver.player_out_status ? 0 : delta
                     return waiver
                 }
             }
         })
     )
     return waiverTrackingUpdate
+}
+
+const calculateWaiverStats = (data, players) => {
+    const playerStats = players.map(player => {
+        const playerData = data.filter(waiver => waiver.manager === player.name)
+        const numberOfTransactions = playerData.length
+        const numberOfWaivers = playerData.filter(item => item.type === "Waiver").length
+        const numberOfFreeAgents = numberOfTransactions - numberOfWaivers
+        const totalProfit = playerData.reduce((a, b) => a + b.profit, 0)
+        const waiverSuccess = playerData.filter(item => item.result === "Successful").length
+        const successRate = Math.round((waiverSuccess / numberOfTransactions) * 100)
+
+        return {
+            manager: player.name,
+            numberOfTransactions,
+            numberOfWaivers,
+            numberOfFreeAgents,
+            totalProfit,
+            successRate
+        }
+    })
+    playerStats.sort((a,b) => b.totalProfit - a.totalProfit)
+    return playerStats
 }
 
 const calculateWeeklyLeagueTable = (data) => {
@@ -252,5 +275,6 @@ module.exports = {
    formatTrades,
    formatNewWaiverDataAndMergeWithExistingData,
    trackWaivers,
-   calculateWeeklyLeagueTable
+   calculateWeeklyLeagueTable,
+   calculateWaiverStats
 } 

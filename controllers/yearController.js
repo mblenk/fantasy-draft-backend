@@ -63,6 +63,7 @@ module.exports.get_year_data = async (req, res) => {
                     response.waivers = data.transactions.waivers,
                     response.trades = data.transactions.trades
                     response.draftPicks = data.draftPicks
+                    response.transactionStats = data.transactions.transactionStats
                     res.status(200).json(response)
                 }
             }

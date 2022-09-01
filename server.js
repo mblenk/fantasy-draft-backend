@@ -31,11 +31,12 @@ const port = process.env.PORT || 8081
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('Connected to db')
+        app.listen(port, () => {
+            console.log('Listening on selected port')
+        })
     })
     .catch((error) => {
         console.log(error)
     })
 
-app.listen(port, () => {
-    console.log('Listening on selected port')
-})
+

@@ -1,6 +1,6 @@
 const axios = require('axios')
 const Year = require('../models/Year')
-const { calculateSquadWeeklyTotalsByPosition, updateWeeklySquadTotalsByPosition, formatWaivers, formatTrades, formatNewWaiverDataAndMergeWithExistingData, trackWaivers, calculateWeeklyLeagueTable } = require('./liveApiDataFunctions')
+const { calculateSquadWeeklyTotalsByPosition, updateWeeklySquadTotalsByPosition, formatNewWaiverDataAndMergeWithExistingData, trackWaivers, calculateWeeklyLeagueTable, calculateWaiverStats } = require('./liveApiDataFunctions')
 const { playerIds, year, leagueCode } = require('./variableData')
 
 module.exports.liveStats = async (req, res) => {
@@ -118,11 +118,14 @@ module.exports.get_transfers = async (req, res) => {
         //TRADES TRACKING
     
         const waiverTrackingUpdate = await trackWaivers(combinedWaivers, current_event)
+
+        const transactionStats = calculateWaiverStats(waiverTrackingUpdate, playerIds)
     
         const data = await Year.updateOne({ year }, {
             transactions : {
                 waivers: waiverTrackingUpdate,
-                trades: combinedTrades
+                trades: combinedTrades,
+                transactionStats
             }
         })
     
@@ -130,7 +133,8 @@ module.exports.get_transfers = async (req, res) => {
             waivers: waiverTrackingUpdate, 
             trades: combinedTrades,
             elementStats: bootstrapStatic.data.elements,
-            draftPicks
+            draftPicks,
+            transactionStats
         })
     } catch (error) {
         console.log(error)
