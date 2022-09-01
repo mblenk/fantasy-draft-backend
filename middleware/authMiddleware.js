@@ -3,20 +3,22 @@ require('dotenv').config()
 
 
 const auth = (req, res, next) => {
-    const token = req.cookies.jwt
-    console.log('auth fired')
+    const cookieToken = req.cookies.jwt 
+    const authHeaderToken = req.headers.authorization
+    const token = cookieToken ?? authHeaderToken
+
     if(token) {
         jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
             if(err) {
                 console.log(err)
             }
             if(decodedToken) {
-                console.log('auth:', decodedToken)
                 next()
             }
         })
     } else {
         console.log(token)
+        throw new Error('Missing token')
     }
 }
 
