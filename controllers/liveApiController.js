@@ -144,27 +144,27 @@ module.exports.get_transfers = async (req, res) => {
     
 }
 
-// module.exports.update_transfers = async (req, res) => {
-//     const { transactions } = req.body
-//     if(transactions) {
-//         try {
-//             const update = await axios.patch(`http://localhost:5000/api/year/update/${year}`, {
-//                 transactions
-//             }, 
-//             { 
-//                 withCredentials: true, 
-//                 credentials: 'include' 
-//             })
-//             res.status(200)
-//             res.send('Success')
-//         } catch (error) {
-//             console.log(error)
-//             res.status(400).send({ text: 'Error, could not update', message: error.message })
-//         }
-//     } else {
-//         res.status(500).json({ error: 'No transaction data received'})
-//     }
-// }
+module.exports.update_transfers = async (req, res) => {
+    const { transactions } = req.body
+    if(transactions) {
+        try {
+            const update = await axios.patch(`http://localhost:5000/api/year/update/${year}`, {
+                transactions
+            }, 
+            { 
+                withCredentials: true, 
+                credentials: 'include' 
+            })
+            res.status(200)
+            res.send('Success')
+        } catch (error) {
+            console.log(error)
+            res.status(400).send({ text: 'Error, could not update', message: error.message })
+        }
+    } else {
+        res.status(500).json({ error: 'No transaction data received'})
+    }
+}
 
 module.exports.get_monthly_data = async (req, res) => {
     try {
