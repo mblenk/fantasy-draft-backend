@@ -8,8 +8,8 @@ module.exports.liveStats = async (req, res) => {
         const bonus = await axios('https://fantasy.premierleague.com/api/event-status/')
         const leagueDetails = await axios(`https://draft.premierleague.com/api/league/${leagueCode}/details`)
         const gwkFinished = await axios('https://draft.premierleague.com/api/game')
-        // const { current_event } = gwkFinished.data
-        const current_event = 5
+        const { current_event } = gwkFinished.data
+        // const current_event = 5
         const dreamTeam = await axios(`https://draft.premierleague.com/api/dreamteam/${current_event}`)
         const bootstrapStatic = await axios('https://fantasy.premierleague.com/api/bootstrap-static/')
         const { elements, phases, element_types } = bootstrapStatic.data
@@ -68,7 +68,7 @@ module.exports.update_scores = async (req, res) => {
                     playerIds.map( async (player) => {
                         scores.players[player.name] = {}
                         const { data } = await axios(`https://draft.premierleague.com/api/entry/${player.entry_id}/history`)
-                        console.log(data.entry.player_first_name)
+
                         const history = data.history
                         finished ? history.length = number : history.length = number - 1
                         history.forEach(week => {
@@ -103,11 +103,13 @@ module.exports.update_scores = async (req, res) => {
 
 module.exports.get_transfers = async (req, res) => {
     try {
-        const [ newWaivers, newTrades, bootstrapStatic ] = await Promise.all([
+        const [ newWaivers, newTrades, bootstrapStatic, gwkFinished ] = await Promise.all([
             axios(`https://draft.premierleague.com/api/draft/league/${leagueCode}/transactions`),
             axios(`https://draft.premierleague.com/api/draft/league/${leagueCode}/trades`),
-            axios('https://fantasy.premierleague.com/api/bootstrap-static/')
+            axios('https://fantasy.premierleague.com/api/bootstrap-static/'),
+            axios('https://draft.premierleague.com/api/game')
         ])
+        const { current_event } = gwkFinished.data
     
         const { transactions, draftPicks } = await Year.findOne({ year: year }).lean()
         
@@ -115,7 +117,7 @@ module.exports.get_transfers = async (req, res) => {
     
         //TRADES TRACKING
     
-        const waiverTrackingUpdate = await trackWaivers(combinedWaivers)
+        const waiverTrackingUpdate = await trackWaivers(combinedWaivers, current_event)
     
         const data = await Year.updateOne({ year }, {
             transactions : {
@@ -241,14 +243,16 @@ module.exports.update_transfer_tracking = async (req, res) => {
 
 module.exports.reset_transfers = async (req, res) => {
     try {
-        const [ newWaivers, newTrades, bootstrapStatic ] = await Promise.all([
+        const [ newWaivers, newTrades, bootstrapStatic, gwkFinished ] = await Promise.all([
             axios(`https://draft.premierleague.com/api/draft/league/${leagueCode}/transactions`),
             axios(`https://draft.premierleague.com/api/draft/league/${leagueCode}/trades`),
-            axios('https://fantasy.premierleague.com/api/bootstrap-static/')
+            axios('https://fantasy.premierleague.com/api/bootstrap-static/'),
+            axios('https://draft.premierleague.com/api/game')
         ])
-        const gwk = 5
+        const { current_event } = gwkFinished.data
+        // const current_event = 1
 
-        const filterByGwk = newWaivers.data.transactions.filter(waiver => waiver.event <= gwk)
+        const filterByGwk = newWaivers.data.transactions.filter(waiver => waiver.event <= current_event)
         const matchFormatToLiveVersion = { data: { transactions: filterByGwk } }
 
         const { transactions, draftPicks } = await Year.findOne({ year: year }).lean()
@@ -260,7 +264,7 @@ module.exports.reset_transfers = async (req, res) => {
         // const formattedWaivers = formatWaivers(newWaivers.data.transactions, bootstrapStatic.data.elements, playerIds)
         // const formattedTrades = formatTrades(newTrades.data.trades, bootstrapStatic.data.elements, playerIds)
 
-        const waiverTrackingUpdate = await trackWaivers(combinedWaivers, gwk)
+        const waiverTrackingUpdate = await trackWaivers(combinedWaivers, current_event)
 
         const data = await Year.updateOne({ year }, {
             transactions : {
