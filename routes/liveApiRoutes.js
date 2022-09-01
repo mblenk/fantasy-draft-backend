@@ -6,7 +6,7 @@ const { auth } = require('../middleware/authMiddleware')
 const router = express.Router()
 
 router.get('/liveStats', auth, liveApiController.liveStats)
-router.patch('/updateScores', auth, liveApiController.update_scores)
+router.get('/updateScores', auth, liveApiController.update_scores)
 router.get('/getTransfers', auth, liveApiController.get_transfers)
 router.patch('/updateTransfers', auth, liveApiController.update_transfers)
 router.patch('/updateTransferTracking', auth, liveApiController.update_transfer_tracking)

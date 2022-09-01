@@ -57,10 +57,11 @@ module.exports.liveStats = async (req, res) => {
 }
 
 module.exports.update_scores = async (req, res) => {
-    const { playerIds, number, finished } = req.body
-
     if(playerIds) {
         try {
+            const gwkFinished = await axios('https://draft.premierleague.com/api/game')
+            const { current_event, current_event_finished } = gwkFinished.data
+
             const getPlayerScores = async (playerIds) => {
                 const scores = { players: {} }
                 
@@ -70,7 +71,7 @@ module.exports.update_scores = async (req, res) => {
                         const { data } = await axios(`https://draft.premierleague.com/api/entry/${player.entry_id}/history`)
 
                         const history = data.history
-                        finished ? history.length = number : history.length = number - 1
+                        current_event_finished ? history.length = current_event : history.length = current_event - 1
                         history.forEach(week => {
                             scores.players[player.name][week.event] = week.points
                         })
@@ -82,7 +83,7 @@ module.exports.update_scores = async (req, res) => {
             const finalScores = calculateWeeklyLeagueTable(result)
     
             const { leagueTable } = await Year.findOne({ year }).lean()
-            finished ? leagueTable[number] = finalScores : leagueTable
+            current_event_finished ? leagueTable[current_event] = finalScores : leagueTable
     
             const update = await Year.updateOne({ year }, {
                 live: true,
@@ -143,27 +144,27 @@ module.exports.get_transfers = async (req, res) => {
     
 }
 
-module.exports.update_transfers = async (req, res) => {
-    const { transactions } = req.body
-    if(transactions) {
-        try {
-            const update = await axios.patch(`http://localhost:5000/api/year/update/${year}`, {
-                transactions
-            }, 
-            { 
-                withCredentials: true, 
-                credentials: 'include' 
-            })
-            res.status(200)
-            res.send('Success')
-        } catch (error) {
-            console.log(error)
-            res.status(400).send({ text: 'Error, could not update', message: error.message })
-        }
-    } else {
-        res.status(500).json({ error: 'No transaction data received'})
-    }
-}
+// module.exports.update_transfers = async (req, res) => {
+//     const { transactions } = req.body
+//     if(transactions) {
+//         try {
+//             const update = await axios.patch(`http://localhost:5000/api/year/update/${year}`, {
+//                 transactions
+//             }, 
+//             { 
+//                 withCredentials: true, 
+//                 credentials: 'include' 
+//             })
+//             res.status(200)
+//             res.send('Success')
+//         } catch (error) {
+//             console.log(error)
+//             res.status(400).send({ text: 'Error, could not update', message: error.message })
+//         }
+//     } else {
+//         res.status(500).json({ error: 'No transaction data received'})
+//     }
+// }
 
 module.exports.get_monthly_data = async (req, res) => {
     try {
