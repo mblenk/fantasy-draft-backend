@@ -12111,7 +12111,7 @@ var require_axios2 = __commonJS({
 
 // index.js
 var axios = require_axios2();
-var urlRoot = "http://Fantasydraft-env.eba-bzdyrqru.eu-west-2.elasticbeanstalk.com/api";
+var urlRoot = "https://api.solschfantasydraftexpressapi.co.uk/api";
 var sendRequestWithAuthentication = async (url, token) => {
   await axios(`${urlRoot}/liveData/${url}`, {
     headers: {

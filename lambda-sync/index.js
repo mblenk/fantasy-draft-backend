@@ -1,5 +1,5 @@
 const axios = require('axios')
-const urlRoot = 'http://Fantasydraft-env.eba-bzdyrqru.eu-west-2.elasticbeanstalk.com/api'
+const urlRoot = 'https://api.solschfantasydraftexpressapi.co.uk/api'
 // const urlRoot = 'http://localhost:5000/api'
 
 
