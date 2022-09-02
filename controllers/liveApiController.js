@@ -49,7 +49,7 @@ module.exports.liveStats = async (req, res) => {
         })
     } catch (error) {
         console.log(error)
-        res.status(400).send({ text: 'Error: Fantasy Football servers are down, please try again later.', message: error.message })
+        res.status(400).send({ text: 'Error: Fantasy Football servers are down, please try again later.', message: error.message, error })
     }    
 }
 
