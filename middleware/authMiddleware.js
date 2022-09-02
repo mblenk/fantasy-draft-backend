@@ -3,9 +3,10 @@ require('dotenv').config()
 
 
 const auth = (req, res, next) => {
-    const cookieToken = req.cookies.jwt 
+    // const cookieToken = req.cookies.jwt 
     const authHeaderToken = req.headers.authorization
-    const token = cookieToken ?? authHeaderToken
+    // const token = cookieToken ?? authHeaderToken
+    const token = authHeaderToken
 
     if(token) {
         jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
