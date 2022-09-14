@@ -28,4 +28,3 @@ exports.handler = async () => {
     )
 }
 
-syncApiDataDaily()

@@ -23,7 +23,7 @@ app.use('/api/user', authRoutes)
 app.use('/api/year', yearRoutes)
 app.use('/api/liveData', liveApiRoutes)
 app.use('/', (req, res) => {
-    res.send('ok')
+    res.send('Server Online')
 })
 
 const port = process.env.PORT || 8081

@@ -12134,7 +12134,6 @@ exports.handler = async () => {
     ]
   );
 };
-syncApiDataDaily();
 /*!
  * mime-db
  * Copyright(c) 2014 Jonathan Ong

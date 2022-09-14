@@ -30,6 +30,9 @@ const yearSchema = new mongoose.Schema({
     },
     leagueTable: {
         type: Map
+    },
+    lastUpdated: {
+        type: Date
     }
 })
 

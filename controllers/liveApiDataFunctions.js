@@ -118,6 +118,7 @@ const formatWaivers = (waivers, elementStats, playerIds) => {
         const playerOutFilter = elementStats.filter(element => element.id === transaction.element_out)
         const player_out_name = playerOutFilter[0].web_name
         const player_out_status = playerOutFilter[0].status === "u" ? playerOutFilter[0].news : ""
+        const player_out_status_added = playerOutFilter[0].status === "u" ? playerOutFilter[0].news_added : ""
         const managerFilter = playerIds.filter(player => player.entry_id === transaction.entry)
         const manager = managerFilter[0].name
 
@@ -140,7 +141,8 @@ const formatWaivers = (waivers, elementStats, playerIds) => {
             profit: 0,
             player_in_score: 0,
             player_out_score: 0,
-            player_out_status
+            player_out_status,
+            player_out_status_added
         }
     })
     return formattedWaivers
@@ -176,7 +178,8 @@ const formatTrades = (trades, elementStats, playerIds) => {
     return formattedTrades
 }
 
-const formatNewWaiverDataAndMergeWithExistingData = (newWaivers, newTrades, elements, transactions, playerIds) => {
+const formatNewWaiverDataAndMergeWithExistingData = (newWaivers, newTrades, bootstrapStatic, transactions, playerIds) => {
+    const { elements } = bootstrapStatic.data
     const removeExistingWaivers = newWaivers.data.transactions.filter((item, i) => {
         return transactions.waivers.filter(waiver => waiver.id === item.id).length === 0
     }) 
@@ -195,7 +198,8 @@ const formatNewWaiverDataAndMergeWithExistingData = (newWaivers, newTrades, elem
     return { combinedWaivers, combinedTrades }
 }
 
-const trackWaivers = async (combinedWaivers, latestGameweek) => {
+const trackWaivers = async (combinedWaivers, latestGameweek, bootstrapStatic) => {
+    const { events } = bootstrapStatic.data
     const waiverTrackingUpdate = await Promise.all(
         combinedWaivers.map( async (waiver) => {
             if(waiver.result !== 'Successful' || !waiver.player_in_retained) {
@@ -210,8 +214,27 @@ const trackWaivers = async (combinedWaivers, latestGameweek) => {
                 const playerOutValidScores = playerOutScores.history.filter(week => week.event >= waiver.gameweek && week.event <= latestGameweek)
 
                 const { data:team } = await axios(`https://draft.premierleague.com/api/entry/${waiver.manager_id}/event/${latestGameweek}`)
-
+        
                 const isPlayerStillInTeam = team.picks.filter(pick => pick.element === waiver.player_in_id)
+
+                if(waiver.player_out_status_added){
+                    const dateAdded = new Date(waiver.player_out_status_added)
+                    const findGameweek = events.filter(event => new Date(event.deadline_time) > dateAdded)
+                    const gameWeekNewsAdded = findGameweek[0].id
+
+                    const playerInValidScores = playerInScores.history.filter(week => week.event >= waiver.gameweek && week.event <= gameWeekNewsAdded)
+                    const playerOutValidScores = playerOutScores.history.filter(week => week.event >= waiver.gameweek && week.event <= gameWeekNewsAdded)
+                    const playerInSum = playerInValidScores.reduce((a, { total_points }) => a + total_points, 0)
+                    const playerOutSum = playerOutValidScores.reduce((a, { total_points }) => a + total_points, 0)
+                    const delta = playerInSum - playerOutSum
+
+                    waiver.player_in_score = playerInSum
+                    waiver.player_out_score = playerOutSum
+                    waiver.profit = delta
+                    waiver.player_in_retained = false
+                    waiver.player_out_status_added = gameWeekNewsAdded
+                    return waiver
+                }
     
                 if(isPlayerStillInTeam.length === 0) {
                     waiver.waiver_tracking_active = false
@@ -223,9 +246,10 @@ const trackWaivers = async (combinedWaivers, latestGameweek) => {
                     const playerInSum = playerInValidScores.reduce((a, { total_points }) => a + total_points, 0)
                     const playerOutSum = playerOutValidScores.reduce((a, { total_points }) => a + total_points, 0)
                     const delta = playerInSum - playerOutSum
+
                     waiver.player_in_score = playerInSum
                     waiver.player_out_score = playerOutSum
-                    waiver.profit = waiver.player_out_status ? 0 : delta
+                    waiver.profit = delta
                     return waiver
                 }
             }

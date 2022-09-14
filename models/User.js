@@ -38,13 +38,13 @@ userSchema.statics.login = async function(username, password) {
     if (user) {
         const newVisits = user.visits + 1
         const lastVisit = new Date()
-        const update = await this.updateOne({ username }, {
-            visits: newVisits,
-            lastVisit
-        })
         // const auth = await bcrypt.compare(password, user.password);
         if (password === user.password) {
-        return user;
+            const update = await this.updateOne({ username }, {
+                visits: newVisits,
+                lastVisit
+            })
+            return user;
         }
         throw Error('Incorrect password');
     }
