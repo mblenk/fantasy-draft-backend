@@ -1,5 +1,5 @@
 require('dotenv').config()
-
+const axios = require('axios')
 const express = require('express')
 const mongoose = require('mongoose')
 const authRoutes = require('./routes/authRoutes')
