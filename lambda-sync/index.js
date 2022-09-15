@@ -14,7 +14,7 @@ const sendRequestWithAuthentication = async (url, token) => {
 exports.handler = async () => {
     const { data } = await axios.post(`${urlRoot}/user/login`, {
         username: process.env.LAMBDA_USERNAME,
-        password: process.env.LAMBA_PASSWORD
+        password: process.env.LAMBDA_PASSWORD
     })
     const token = data.token
 
