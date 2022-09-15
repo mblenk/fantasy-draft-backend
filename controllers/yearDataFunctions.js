@@ -14,7 +14,8 @@ const maxMinScores = (data) => {
     const maxScore = Object.keys(data.scores.players).map(player => {
         const values = Object.values(data.scores.players[player])
         const maxScore = Math.max(...values)
-        const minScore = Math.min(...values)
+        const filterZero = values.filter(value => value > 0)
+        const minScore = Math.min(...filterZero)
 
         return { player, minScore, maxScore } 
     })
