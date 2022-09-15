@@ -39,7 +39,7 @@ userSchema.statics.login = async function(username, password) {
         const newVisits = user.visits + 1
         const lastVisit = new Date()
         const auth = await bcrypt.compare(password, user.password);
-        if (password === user.password) {
+        if (auth) {
             const update = await this.updateOne({ username }, {
                 visits: newVisits,
                 lastVisit
