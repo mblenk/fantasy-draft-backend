@@ -3,26 +3,6 @@ const Year = require('../models/Year')
 const { calculateSquadWeeklyTotalsByPosition, updateWeeklySquadTotalsByPosition, formatNewWaiverDataAndMergeWithExistingData, trackWaivers, calculateWeeklyLeagueTable, calculateWaiverStats } = require('./liveApiDataFunctions')
 const { playerIds, year, leagueCode } = require('./variableData')
 
-// const fetchFromFplApi = (url) => {
-//     const res = axios(url, {
-//         headers: {
-//             'authority': 'users.premierleague.com' ,
-//             'cache-control': 'max-age=0' ,
-//             'upgrade-insecure-requests': '1' ,
-//             'origin': 'https://fantasy.premierleague.com/' ,
-//             'content-type': 'application/x-www-form-urlencoded' ,
-//             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36' ,
-//             'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8,application/signed-exchange;v=b3;q=0.9' ,
-//             'sec-fetch-site': 'same-site' ,
-//             'sec-fetch-mode': 'navigate' ,
-//             'sec-fetch-user': '?1' ,
-//             'sec-fetch-dest': 'document' ,
-//             'referer': 'https://fantasy.premierleague.com/' ,
-//             'accept-language': 'en-US,en;q=0.9,he;q=0.8' ,
-//         }
-//     })
-//     return res
-// }
 
 module.exports.liveStats = async (req, res) => {
     try {

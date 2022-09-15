@@ -1,5 +1,5 @@
 const axios = require('axios')
-const urlRoot = 'https://api.solschfantasydraftexpressapi.co.uk/api'
+const urlRoot = 'https://fantasy-draft-backend-2ta2q.ondigitalocean.app/api'
 // const urlRoot = 'http://localhost:5000/api'
 
 
