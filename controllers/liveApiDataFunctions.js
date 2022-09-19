@@ -150,13 +150,25 @@ const formatWaivers = (waivers, elementStats, playerIds) => {
 
 const formatTrades = (trades, elementStats, playerIds) => {
     const formattedTrades = trades.map(trade => {
-        const playersInvolved = trade.tradeitem_set.map(playerSwap => {
+        const playersOffered = []
+        const playersReceived = []
+        trade.tradeitem_set.forEach(playerSwap => {
             const findPlayerIn = elementStats.filter(element => element.id === playerSwap.element_in )
             const findPlayerOut = elementStats.filter(element => element.id === playerSwap.element_out )
             const player_in = findPlayerIn[0].web_name
             const player_out = findPlayerOut[0].web_name
 
-            return { player_in, player_out }
+            playersReceived.push({
+                player_in,
+                player_in_id: playerSwap.element_in,
+                score: 0
+            })
+            playersOffered.push({
+                player_out,
+                player_out_id: playerSwap.element_out,
+                score: 0
+            })
+
         })
 
         const findOfferingManager = playerIds.filter(manager => manager.entry_id === trade.offered_entry)
@@ -170,7 +182,54 @@ const formatTrades = (trades, elementStats, playerIds) => {
             receiving_manager,
             offer_time: trade.offer_time,
             response_time: trade.response_time,
-            trade_content: playersInvolved,
+            // trade_content: playersInvolved,
+            playersOffered,
+            playersReceived,
+            offering_score: 0,
+            receiving_score: 0,
+            manager_in_profit: 'N/A',
+            id: trade.id 
+        }
+
+    })
+    return formattedTrades
+}
+
+const formatRandomLeagueTrades = (trades, elementStats) => {
+    const formattedTrades = trades.map(trade => {
+        const playersOffered = []
+        const playersReceived = []
+        trade.tradeitem_set.forEach(playerSwap => {
+            const findPlayerIn = elementStats.filter(element => element.id === playerSwap.element_in )
+            const findPlayerOut = elementStats.filter(element => element.id === playerSwap.element_out )
+            const player_in = findPlayerIn[0].web_name
+            const player_out = findPlayerOut[0].web_name
+
+            playersReceived.push({
+                player_in,
+                player_in_id: playerSwap.element_in,
+                score: 0
+            })
+            playersOffered.push({
+                player_out,
+                player_out_id: playerSwap.element_out,
+                score: 0
+            })
+
+        })
+
+        return {
+            gameweek: trade.event,
+            offering_manager: 'A', 
+            receiving_manager: 'B',
+            offer_time: trade.offer_time,
+            response_time: trade.response_time,
+            // trade_content: playersInvolved,
+            playersOffered,
+            playersReceived,
+            offering_score: 0,
+            receiving_score: 0,
+            manager_in_profit: 'N/A',
             id: trade.id 
         }
 
@@ -193,7 +252,7 @@ const formatNewWaiverDataAndMergeWithExistingData = (newWaivers, newTrades, boot
 
     //combine old and new data
     const combinedWaivers = [...transactions.waivers, ...formattedWaivers]
-    const combinedTrades = [...formattedTrades]
+    const combinedTrades = [...transactions.trades, ...formattedTrades]
 
     return { combinedWaivers, combinedTrades }
 }
@@ -258,6 +317,56 @@ const trackWaivers = async (combinedWaivers, latestGameweek, bootstrapStatic) =>
     return waiverTrackingUpdate
 }
 
+const trackTrades = async (combinedTrades, latestGameweek) => {
+    const tradeTrackingUpdate = await Promise.all(
+        combinedTrades.map( async (trade) => {
+            const receivedPlayerScores = await Promise.all(
+                trade.playersReceived.map( async (player) => {
+                    const { data:playerInScores } = await axios(`https://draft.premierleague.com/api/element-summary/${player.player_in_id}`)
+                    const playerInValidScores = playerInScores.history.filter(week => week.event >= trade.gameweek && week.event <= latestGameweek)
+                    const playerInSum = playerInValidScores.reduce((a, { total_points }) => a + total_points, 0)
+
+                    const cumulativeScore = playerInSum + player.score
+                    return {
+                        player_in: player.player_in,
+                        player_in_id: player.player_in_id,
+                        score: cumulativeScore
+                    }
+                })
+            )
+            const offeredPlayerScores = await Promise.all(
+                trade.playersOffered.map( async (player) => {
+                    const { data:playerOutScores } = await axios(`https://draft.premierleague.com/api/element-summary/${player.player_out_id}`)
+                    const playerOutValidScores = playerOutScores.history.filter(week => week.event >= trade.gameweek && week.event <= latestGameweek)
+                    const playerOutSum = playerOutValidScores.reduce((a, { total_points }) => a + total_points, 0)
+
+                    const cumulativeScore = playerOutSum + player.score
+                    return {
+                        player_out: player.player_out,
+                        player_out_id: player.player_out_id,
+                        score: cumulativeScore
+                    }
+                })
+            )
+
+            const offeredPlayersTotal = offeredPlayerScores.reduce((a, { score }) => a + score, 0)
+            const receivedPlayersTotal = receivedPlayerScores.reduce((a, { score }) => a + score, 0)
+            const profitWinner = offeredPlayersTotal === receivedPlayersTotal ? 'N/A' : offeredPlayersTotal < receivedPlayersTotal ? trade.offering_manager : trade.receiving_manager
+            const profit = receivedPlayersTotal - offeredPlayersTotal
+
+            trade.playersOffered = offeredPlayerScores
+            trade.playersReceived = receivedPlayerScores
+            trade.offering_score = offeredPlayersTotal
+            trade.receiving_score = receivedPlayersTotal
+            trade.manager_in_profit = profitWinner
+            trade.profit = profit
+            return trade
+            
+        })
+    )
+    return tradeTrackingUpdate
+}
+
 const calculateWaiverStats = (data, players) => {
     const playerStats = players.map(player => {
         const playerData = data.filter(waiver => waiver.manager === player.name)
@@ -292,13 +401,22 @@ const calculateWeeklyLeagueTable = (data) => {
     return finalScores
 }
 
+const getRandomInt = (min, max) => {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 module.exports = {
    calculateSquadWeeklyTotalsByPosition,
    updateWeeklySquadTotalsByPosition,
    formatWaivers,
    formatTrades,
+   formatRandomLeagueTrades,
    formatNewWaiverDataAndMergeWithExistingData,
    trackWaivers,
+   trackTrades,
    calculateWeeklyLeagueTable,
-   calculateWaiverStats
+   calculateWaiverStats,
+   getRandomInt
 } 

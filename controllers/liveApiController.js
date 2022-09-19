@@ -1,6 +1,6 @@
 const axios = require('axios')
 const Year = require('../models/Year')
-const { calculateSquadWeeklyTotalsByPosition, updateWeeklySquadTotalsByPosition, formatNewWaiverDataAndMergeWithExistingData, trackWaivers, calculateWeeklyLeagueTable, calculateWaiverStats } = require('./liveApiDataFunctions')
+const { calculateSquadWeeklyTotalsByPosition, updateWeeklySquadTotalsByPosition, formatNewWaiverDataAndMergeWithExistingData, trackWaivers, trackTrades, calculateWeeklyLeagueTable, calculateWaiverStats, formatRandomLeagueTrades, getRandomInt } = require('./liveApiDataFunctions')
 const { playerIds, year, leagueCode } = require('./variableData')
 
 
@@ -10,7 +10,6 @@ module.exports.liveStats = async (req, res) => {
         const leagueDetails = await axios(`https://draft.premierleague.com/api/league/${leagueCode}/details`)
         const gwkFinished = await axios('https://draft.premierleague.com/api/game')
         const { current_event } = gwkFinished.data
-        // const current_event = 5
         const dreamTeam = await axios(`https://draft.premierleague.com/api/dreamteam/${current_event}`)
         const bootstrapStatic = await axios('https://fantasy.premierleague.com/api/bootstrap-static/')
         const { elements, phases, element_types } = bootstrapStatic.data
@@ -116,7 +115,7 @@ module.exports.get_transfers = async (req, res) => {
         
         const { combinedWaivers, combinedTrades } = formatNewWaiverDataAndMergeWithExistingData(newWaivers, newTrades, bootstrapStatic, transactions, playerIds)
     
-        //TRADES TRACKING
+        const tradesTrackingUpdate = await trackTrades(combinedTrades, current_event)
     
         const removeNewWaiversWithNoTeamDataForTracking = combinedWaivers.filter(waiver => waiver.gameweek <= current_event)
         const removedWaivers = combinedWaivers.filter(waiver => waiver.gameweek > current_event)
@@ -128,7 +127,7 @@ module.exports.get_transfers = async (req, res) => {
         const data = await Year.updateOne({ year }, {
             transactions : {
                 waivers: combineTrackedWaivers,
-                trades: combinedTrades,
+                trades: tradesTrackingUpdate,
                 transactionStats 
             }
         })
@@ -145,6 +144,94 @@ module.exports.get_transfers = async (req, res) => {
         res.status(400).send({ text: 'Error, could not fetch transfers', message: error.message })
     }
     
+}
+
+module.exports.get_random_league_trades = async (req, res) => {
+    let trades = {}
+
+    const findRandomLeague = async (trades) => {
+        if(trades.trades) return
+
+        const num = getRandomInt(1, 250000)
+        try {
+            const { data } = await axios(`https://draft.premierleague.com/api/draft/league/${num}/trades`)
+            if(data.trades.length === 0) throw new Error('No trades')
+            if(data) {
+                trades = data
+                console.log(num, 'Trades')
+
+                const bootstrapStatic = await axios('https://fantasy.premierleague.com/api/bootstrap-static/')
+                const gwkFinished = await axios('https://draft.premierleague.com/api/game')
+                const { current_event } = gwkFinished.data
+            
+                const formattedTrades = formatRandomLeagueTrades(data.trades, bootstrapStatic.data.elements)
+            
+                const trackingUpdate = await trackTrades(formattedTrades, current_event)
+            
+                res.send({
+                    trades: trackingUpdate,
+                    leagueId: num
+                })
+            }
+        } catch (error) {
+            console.log(num, error.message)
+        }
+        
+        findRandomLeague(trades)
+    }
+    findRandomLeague(trades)
+}
+
+module.exports.get_random_draft = async (req, res) => {
+    let draft = {}
+
+    const findRandomLeague = async (draft) => {
+        if(draft.choices) return
+
+        const num = getRandomInt(1, 250000)
+        try {
+            const { data } = await axios(`https://draft.premierleague.com/api/draft/${num}/choices`)
+            if(data.choices.length === 0) throw new Error('Draft not done')
+            if(data) {
+                draft = data
+                console.log(num, 'Draft')
+                const bootstrapStatic = await axios('https://draft.premierleague.com/api/bootstrap-static')
+
+                const leagueSize = data.choices.filter(pick => pick.round === 1).length
+                const managersOdd = ['A','B','C','D','E','F','G','H']
+                managersOdd.length = leagueSize
+                const managersEven = managersOdd.map((item, i) => managersOdd[leagueSize - 1 - i])
+
+                const draftPicks = data.choices.map(pick => {
+                    const findPlayer = bootstrapStatic.data.elements.filter(element => pick.element === element.id)
+                    const element_name = findPlayer[0].web_name
+                   
+                    
+                    const manager = pick.round % 2 === 0 ? managersEven[pick.pick - 1] : managersOdd[pick.pick - 1]
+
+                    return {
+                        pick: pick.index,
+                        round: pick.round,
+                        roundPick: pick.pick,
+                        manager, 
+                        element: pick.element,
+                        element_name,
+                        choice_time: pick.choice_time,
+                    }
+                })
+
+                res.send({
+                    draft: draftPicks,
+                    leagueId: num
+                })
+            }
+        } catch (error) {
+            console.log(num, error.message)
+        }
+        
+        findRandomLeague(draft)
+    }
+    findRandomLeague(draft)
 }
 
 module.exports.update_transfers = async (req, res) => {
