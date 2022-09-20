@@ -198,7 +198,7 @@ module.exports.get_random_draft = async (req, res) => {
                 const bootstrapStatic = await axios('https://draft.premierleague.com/api/bootstrap-static')
 
                 const leagueSize = data.choices.filter(pick => pick.round === 1).length
-                const managersOdd = ['A','B','C','D','E','F','G','H']
+                const managersOdd = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P']
                 managersOdd.length = leagueSize
                 const managersEven = managersOdd.map((item, i) => managersOdd[leagueSize - 1 - i])
 
