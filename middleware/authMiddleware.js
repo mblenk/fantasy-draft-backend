@@ -11,7 +11,9 @@ const auth = (req, res, next) => {
     if(token) {
         jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
             if(err) {
-                console.log(err)
+                console.log('JWT Error', err.message)
+                res.status(403).send('JWT Expired')
+                throw new Error('Issue with token')
             }
             if(decodedToken) {
                 next()
@@ -28,7 +30,7 @@ const userCheck = (req, res, next) => {
     if(token) {
         jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
             if(err) {
-                console.log(err)
+                console.log('JWT Error', err)
             }
             if(decodedToken) {
                 console.log('user check', decodedToken)

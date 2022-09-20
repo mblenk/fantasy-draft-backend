@@ -6,7 +6,7 @@ const authRoutes = require('./routes/authRoutes')
 const yearRoutes = require('./routes/yearRoutes')
 const liveApiRoutes = require('./routes/liveApiRoutes')
 const cors = require('cors')
-const cookieParser = require('cookie-parser')
+// const cookieParser = require('cookie-parser')
 
 const app = express()
 
@@ -16,7 +16,7 @@ app.use(cors({
      origin: true, 
      credentials: true 
 }))
-app.use(cookieParser())
+// app.use(cookieParser())
 
 //routes
 app.use('/api/user', authRoutes)
