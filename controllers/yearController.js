@@ -1,5 +1,7 @@
 const axios = require('axios')
 const Year = require('../models/Year')
+const { ObjectId } = require('mongodb')
+const User = require('../models/User')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const { playerIds, year, leagueCode } = require('./variableData')
@@ -8,6 +10,13 @@ const { calculateTotalScoresFromWeeklyPoints, calculateStatistics, yearlyScoresA
 
 module.exports.get_all_data = async (req, res) => {
     try {
+        const { requests } = await User.findOne({ _id: ObjectId(res.locals.user.id)}).lean()
+        const increment = requests.all_time + 1
+        requests.all_time =  increment
+        const updateUser = await User.updateOne({ _id: ObjectId(res.locals.user.id)}, {
+            requests
+        })
+
         const query = req.query
         const data = await Year.find().lean()
         const players = ['Matt', 'Sam', 'Devan', 'Doug', 'Nick', 'Ollie', 'Dan', 'James', 'Tom']
@@ -42,6 +51,13 @@ module.exports.get_all_data = async (req, res) => {
 module.exports.get_year_data = async (req, res) => {
     if(req.params.id){
         try {
+            const { requests } = await User.findOne({ _id: ObjectId(res.locals.user.id)}).lean()
+            const increment = requests.previous_year + 1
+            requests.previous_year =  increment
+            const updateUser = await User.updateOne({ _id: ObjectId(res.locals.user.id)}, {
+                requests
+            })
+
             const data = await Year.findOne({ year: req.params.id }).lean()
             if(data) {
                 const years = ['2017-18', '2018-19', '2019-20', '2020-21', '2021-22']
@@ -124,8 +140,6 @@ module.exports.add_draft_data = async (req, res) => {
         console.log(err)
         res.status(400).send(`Error, could not update: ${err.message}`)
     }
-
-
 }
 
 

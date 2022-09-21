@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
-
+//METRIC BRANCH
 
 const auth = (req, res, next) => {
     // const cookieToken = req.cookies.jwt 
@@ -16,6 +16,7 @@ const auth = (req, res, next) => {
                 throw new Error('Issue with token')
             }
             if(decodedToken) {
+                res.locals.user = decodedToken
                 next()
             }
         })

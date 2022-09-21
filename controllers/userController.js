@@ -103,3 +103,16 @@ module.exports.log_out = (req, res) => {
     res.status(200).json({ mssg: 'User logged out'})
 }
 
+// module.exports.update_user = async (req, res) => {
+//     const { username, data } = req.body
+
+//     try {
+//         const update = await User.updateOne({ username }, {
+//             requests: data,
+//         })
+//         res.status(200).send('Updated')
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+
