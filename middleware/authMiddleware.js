@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
-
+//DEVELOP BRANCH
 
 const auth = (req, res, next) => {
     // const cookieToken = req.cookies.jwt 
