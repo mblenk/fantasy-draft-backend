@@ -16,6 +16,7 @@ const auth = (req, res, next) => {
                 throw new Error('Issue with token')
             }
             if(decodedToken) {
+                res.locals.user = decodedToken
                 next()
             }
         })

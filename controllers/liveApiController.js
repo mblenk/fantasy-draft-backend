@@ -1,4 +1,6 @@
 const axios = require('axios')
+const { ObjectId } = require('mongodb')
+const User = require('../models/User')
 const Year = require('../models/Year')
 const { calculateSquadWeeklyTotalsByPosition, updateWeeklySquadTotalsByPosition, formatNewWaiverDataAndMergeWithExistingData, trackWaivers, trackTrades, calculateWeeklyLeagueTable, calculateWaiverStats, formatRandomLeagueTrades, getRandomInt } = require('./liveApiDataFunctions')
 const { playerIds, year, leagueCode } = require('./variableData')
@@ -33,6 +35,13 @@ module.exports.liveStats = async (req, res) => {
             // when updating squad scores the reset_transfers endpoint will also need to be called to reset the waiver data
             squadScores: updatedSquadScores,
             lastUpdated: timeOfUpdate
+        })
+
+        const { requests } = await User.findOne({ _id: ObjectId(res.locals.user.id)}).lean()
+        const increment = requests.live_gwk + 1
+        requests.live_gwk =  increment
+        const updateUser = await User.updateOne({ _id: ObjectId(res.locals.user.id)}, {
+            requests
         })
 
         res.send({ 
@@ -131,6 +140,13 @@ module.exports.get_transfers = async (req, res) => {
                 transactionStats 
             }
         })
+
+        const { requests } = await User.findOne({ _id: ObjectId(res.locals.user.id)}).lean()
+        const increment = requests.transfers + 1
+        requests.transfers =  increment
+        const updateUser = await User.updateOne({ _id: ObjectId(res.locals.user.id)}, {
+            requests
+        })
     
         res.send({ 
             waivers: combineTrackedWaivers, 
@@ -148,6 +164,13 @@ module.exports.get_transfers = async (req, res) => {
 
 module.exports.get_random_league_trades = async (req, res) => {
     let trades = {}
+
+    const { requests } = await User.findOne({ _id: ObjectId(res.locals.user.id)}).lean()
+    const increment = requests.random_trades + 1
+    requests.random_trades =  increment
+    const updateUser = await User.updateOne({ _id: ObjectId(res.locals.user.id)}, {
+        requests
+    })
 
     const findRandomLeague = async (trades) => {
         if(trades.trades) return
@@ -184,6 +207,13 @@ module.exports.get_random_league_trades = async (req, res) => {
 
 module.exports.get_random_draft = async (req, res) => {
     let draft = {}
+
+    const { requests } = await User.findOne({ _id: ObjectId(res.locals.user.id)}).lean()
+    const increment = requests.random_draft + 1
+    requests.random_draft =  increment
+    const updateUser = await User.updateOne({ _id: ObjectId(res.locals.user.id)}, {
+        requests
+    })
 
     const findRandomLeague = async (draft) => {
         if(draft.choices) return
@@ -298,6 +328,14 @@ module.exports.get_monthly_data = async (req, res) => {
         const data = await Year.updateOne({ year }, {
             months
         })
+
+        const { requests } = await User.findOne({ _id: ObjectId(res.locals.user.id)}).lean()
+        const increment = requests.months + 1
+        requests.months =  increment
+        const updateUser = await User.updateOne({ _id: ObjectId(res.locals.user.id)}, {
+            requests
+        })
+
         res.status(200).send(months)
     } catch (error) {
         console.log(error)

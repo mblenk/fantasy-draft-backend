@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
     },
     lastVisit: {
         type: Date
+    },
+    requests: {
+        type: Map
     }
 })
 
