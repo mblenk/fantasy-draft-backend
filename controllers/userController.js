@@ -103,6 +103,10 @@ module.exports.log_out = (req, res) => {
     res.status(200).json({ mssg: 'User logged out'})
 }
 
+module.exports._create_guest_user = async (req, res) => {
+
+}
+
 // module.exports.update_user = async (req, res) => {
 //     const { username, data } = req.body
 
@@ -116,4 +120,3 @@ module.exports.log_out = (req, res) => {
 //     }
 // }
 
-//Develop
