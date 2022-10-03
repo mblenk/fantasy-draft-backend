@@ -10,14 +10,6 @@ const {
     createEmailTextLink
 } = require('./userFunctions')
 
-const transporter = nodemailer.createTransport({
-    service:"outlook",
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.PASSWORD
-    }
-})
-
 
 module.exports.login_user = async (req, res) => {
     const { username, password } = req.body
@@ -126,6 +118,14 @@ module.exports.create_guest_user = async (req, res) => {
         const token = createGuestToken(user._id)
 
         const emailText = createEmailTextLink(token)
+
+        const transporter = nodemailer.createTransport("SMTP", {
+            service:"hotmail",
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD
+            }
+        })
 
         const nodemailerOptions = {
             from: process.env.EMAIL,
