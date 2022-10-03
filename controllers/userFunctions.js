@@ -37,7 +37,6 @@ const createToken = (id) => {
     })
 }
 
-// const maxGuestAge = 1 * 1 * 1 * 10 // days hours minutes seconds
 const maxGuestAge = 1 * 1 * 30 * 60 // days hours minutes seconds
 const createGuestToken = (id) => {
     return jwt.sign({ id }, process.env.SECRET, {

@@ -119,36 +119,36 @@ module.exports.create_guest_user = async (req, res) => {
 
         const emailText = createEmailTextLink(token)
 
-        const transporter = nodemailer.createTransport({
-            service:"hotmail",
-            port: 587,
-            secure: false,
-            auth: {
-                user: process.env.EMAIL,
-                pass: process.env.PASSWORD
-            },
-            tls: {
-                ciphers: "SSLv3",
-                rejectUnauthorized: false
-            }
-        })
+        // const transporter = nodemailer.createTransport({
+        //     service:"hotmail",
+        //     port: 587,
+        //     secure: false,
+        //     auth: {
+        //         user: process.env.EMAIL,
+        //         pass: process.env.PASSWORD
+        //     },
+        //     tls: {
+        //         ciphers: "SSLv3",
+        //         rejectUnauthorized: false
+        //     }
+        // })
 
-        const nodemailerOptions = {
-            from: process.env.EMAIL,
-            to: email,
-            subject: "Your authorised access link",
-            text: emailText
-        }
+        // const nodemailerOptions = {
+        //     from: process.env.EMAIL,
+        //     to: email,
+        //     subject: "Your authorised access link",
+        //     text: emailText
+        // }
 
-        transporter.sendMail(nodemailerOptions, (err, info) => {
-            if(err){
-                console.log(err)
-                return
-            }
-            console.log(info.response)
-        })
+        // transporter.sendMail(nodemailerOptions, (err, info) => {
+        //     if(err){
+        //         console.log(err)
+        //         return
+        //     }
+        //     console.log(info.response)
+        // })
 
-        res.status(200).send('Access created')
+        res.status(200).send({ token })
 
     }
     catch(err) {
@@ -160,7 +160,7 @@ module.exports.create_guest_user = async (req, res) => {
 
 module.exports.check_guest_user = async (req, res) => {
     const { token } = req.body
-
+    console.log(token)
     jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
         if(err) {
             console.log('JWT Error', err.message)
