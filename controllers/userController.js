@@ -75,6 +75,7 @@ module.exports.log_out = (req, res) => {
 
 module.exports.create_guest_user = async (req, res) => {
     const host = req.get('host')
+    console.log(host)
 
     // if(host !== '') {
     //     console.log('Access blocked, invalid host')
