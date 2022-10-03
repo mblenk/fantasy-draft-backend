@@ -82,7 +82,7 @@ module.exports.create_guest_user = async (req, res) => {
     //     return
     // }
 
-    const guestUserIdNumber = Math.floor(Math.random() * (50 - 1 + 1) + 1)
+    const guestUserIdNumber = Math.floor(Math.random() * (500000 - 1 + 1) + 1)
     const passwordKeyOne = Math.floor(Math.random() * (50 - 1 + 1) + 1)
     const passwordKeyTwo = Math.floor(Math.random() * (50 - 1 + 1) + 1)
 
