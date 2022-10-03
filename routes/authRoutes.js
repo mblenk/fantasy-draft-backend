@@ -9,5 +9,7 @@ router.post('/signup', userController.create_user)
 // router.patch('/update', userController.update_user)
 router.get('/logout', userController.log_out)
 router.get('/check', userCheck, userController.check_user)
+router.post('/createguestuser', userController.create_guest_user)
+router.post('/checkguestuser', userController.check_guest_user)
 
 module.exports = router

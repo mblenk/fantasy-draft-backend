@@ -311,7 +311,7 @@ module.exports.get_monthly_data = async (req, res) => {
             const playerScoresInMonth = findWeeksInCurrentMonth.map(week => {
                 return weeklyScores.players[player.name][week]
             })
-            const playerMonthlyTotal = playerScoresInMonth.reduce((a,b) => a + b)
+            const playerMonthlyTotal = playerScoresInMonth.reduce((a,b) => a + b, 0)
 
             return { player: player.name, score: playerMonthlyTotal }
         })
