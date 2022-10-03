@@ -119,7 +119,7 @@ module.exports.create_guest_user = async (req, res) => {
 
         const emailText = createEmailTextLink(token)
 
-        const transporter = nodemailer.createTransport("SMTP", {
+        const transporter = nodemailer.createTransport({
             service:"hotmail",
             auth: {
                 user: process.env.EMAIL,
