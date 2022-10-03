@@ -44,15 +44,9 @@ const createGuestToken = (id) => {
     })
 }
 
-const createEmailTextLink = (token) => {
-    const url = `http://localhost:3001/login?token=${token}`
-    const emailText = `Hi,\n\nPlease click the link below for authorised access to the site. Please note, this access is valid for 30 minutes. Once this has expired you will need to request a new access link.\n\n${url}\n\nThanks for visiting!`
-    return emailText
-}
 
 module.exports = {
     handleErrors,
     createToken,
-    createGuestToken,
-    createEmailTextLink
+    createGuestToken
 }

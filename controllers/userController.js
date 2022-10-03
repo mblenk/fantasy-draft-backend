@@ -1,13 +1,11 @@
 const { ObjectId } = require('mongodb')
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
-const nodemailer = require('nodemailer')
 require('dotenv').config()
 const {
     handleErrors,
     createToken,
     createGuestToken,
-    createEmailTextLink
 } = require('./userFunctions')
 
 
@@ -76,19 +74,13 @@ module.exports.log_out = (req, res) => {
 
 
 module.exports.create_guest_user = async (req, res) => {
-    const { email } = req.body
     const host = req.get('host')
 
-    // if(host !== 'localhost:3000') {
+    // if(host !== '') {
     //     console.log('Access blocked, invalid host')
     //     res.status(400).send('Invalid host')
     //     return
     // }
-
-    if(!email){
-        res.status(400).send('No email provided')
-        return
-    }
 
     const guestUserIdNumber = Math.floor(Math.random() * (50 - 1 + 1) + 1)
     const passwordKeyOne = Math.floor(Math.random() * (50 - 1 + 1) + 1)
@@ -116,37 +108,6 @@ module.exports.create_guest_user = async (req, res) => {
             }
         })
         const token = createGuestToken(user._id)
-
-        const emailText = createEmailTextLink(token)
-
-        // const transporter = nodemailer.createTransport({
-        //     service:"hotmail",
-        //     port: 587,
-        //     secure: false,
-        //     auth: {
-        //         user: process.env.EMAIL,
-        //         pass: process.env.PASSWORD
-        //     },
-        //     tls: {
-        //         ciphers: "SSLv3",
-        //         rejectUnauthorized: false
-        //     }
-        // })
-
-        // const nodemailerOptions = {
-        //     from: process.env.EMAIL,
-        //     to: email,
-        //     subject: "Your authorised access link",
-        //     text: emailText
-        // }
-
-        // transporter.sendMail(nodemailerOptions, (err, info) => {
-        //     if(err){
-        //         console.log(err)
-        //         return
-        //     }
-        //     console.log(info.response)
-        // })
 
         res.status(200).send({ token })
 
