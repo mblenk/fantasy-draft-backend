@@ -126,6 +126,10 @@ module.exports.create_guest_user = async (req, res) => {
             auth: {
                 user: process.env.EMAIL,
                 pass: process.env.PASSWORD
+            },
+            tls: {
+                ciphers: "SSLv3",
+                rejectUnauthorized: false
             }
         })
 
