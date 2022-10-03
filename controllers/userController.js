@@ -75,13 +75,12 @@ module.exports.log_out = (req, res) => {
 
 module.exports.create_guest_user = async (req, res) => {
     const origin = req.get('origin')
-    console.log('Origin: ', origin)
 
-    // if(host !== '') {
-    //     console.log('Access blocked, invalid host')
-    //     res.status(400).send('Invalid host')
-    //     return
-    // }
+    if(origin !== process.env.ORIGIN) {
+        console.log('Access blocked, invalid host')
+        res.status(400).send('Invalid host')
+        return
+    }
 
     const guestUserIdNumber = Math.floor(Math.random() * (500000 - 1 + 1) + 1)
     const passwordKeyOne = Math.floor(Math.random() * (50 - 1 + 1) + 1)
