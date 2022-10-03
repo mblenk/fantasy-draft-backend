@@ -121,7 +121,7 @@ module.exports.create_guest_user = async (req, res) => {
 
 module.exports.check_guest_user = async (req, res) => {
     const { token } = req.body
-    console.log(token)
+
     jwt.verify(token, process.env.SECRET, (err, decodedToken) => {
         if(err) {
             console.log('JWT Error', err.message)
