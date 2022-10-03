@@ -159,7 +159,7 @@ module.exports.check_guest_user = async (req, res) => {
         if(err) {
             console.log('JWT Error', err.message)
             res.status(403).send(err.message)
-            throw new Error('Issue with token')
+            throw new Error('Issue with auth token')
         }
         if(decodedToken) {
             res.status(200).json({ token })
