@@ -295,13 +295,28 @@ module.exports.get_monthly_data = async (req, res) => {
         const { scores:weeklyScores, months } = await Year.findOne({ year }).lean()
         const deletedOverallPhase = phases.filter(phase => phase.name !== "Overall")
 
-        const currentMonth = deletedOverallPhase.find(phase => phase.start_event <= current_event && current_event <= phase.stop_event)
+        // Adjust September and October
+        deletedOverallPhase[1] = {
+            "id": 3,
+            "name": "September",
+            "start_event": 6,
+            "stop_event": 10
+        }
+        deletedOverallPhase[2] = {
+            "id": 4,
+            "name": "October",
+            "start_event": 11,
+            "stop_event": 14
+        }
+
 
         deletedOverallPhase.forEach(phase => {
             months[phase.name].start_event = phase.start_event
             months[phase.name].stop_event = phase.stop_event
             months[phase.name].live_month = false
         })
+
+        const currentMonth = deletedOverallPhase.find(phase => phase.start_event <= current_event && current_event <= phase.stop_event) 
         months[currentMonth.name].live_month = true
 
         const monthlyTotals = playerIds.map(player => {
