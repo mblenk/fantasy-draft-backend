@@ -75,8 +75,6 @@ module.exports.log_out = (req, res) => {
 
 module.exports.create_guest_user = async (req, res) => {
     const origin = req.get('origin')
-    console.log(origin)
-    console.log(process.env.ORIGIN)
 
     if(origin !== process.env.ORIGIN) {
         console.log('Access blocked, invalid host')
