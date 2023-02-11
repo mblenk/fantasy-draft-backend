@@ -326,11 +326,10 @@ const trackTrades = async (combinedTrades, latestGameweek) => {
                     const playerInValidScores = playerInScores.history.filter(week => week.event >= trade.gameweek && week.event <= latestGameweek)
                     const playerInSum = playerInValidScores.reduce((a, { total_points }) => a + total_points, 0)
 
-                    const cumulativeScore = playerInSum + player.score
                     return {
                         player_in: player.player_in,
                         player_in_id: player.player_in_id,
-                        score: cumulativeScore
+                        score: playerInSum
                     }
                 })
             )
@@ -340,11 +339,10 @@ const trackTrades = async (combinedTrades, latestGameweek) => {
                     const playerOutValidScores = playerOutScores.history.filter(week => week.event >= trade.gameweek && week.event <= latestGameweek)
                     const playerOutSum = playerOutValidScores.reduce((a, { total_points }) => a + total_points, 0)
 
-                    const cumulativeScore = playerOutSum + player.score
                     return {
                         player_out: player.player_out,
                         player_out_id: player.player_out_id,
-                        score: cumulativeScore
+                        score: playerOutSum
                     }
                 })
             )
